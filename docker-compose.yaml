@@ -1,0 +1,32 @@
+services:
+  db:
+    container_name: postgresql_database_server
+    image: postgres:latest
+    environment:
+      POSTGRES_USER : SAM
+      POSTGRES_PASSWORD : PASSWORD
+    ports:
+      - "5332:5432"
+    volumes:
+      - "postgres_db:/var/lib/postgresql"
+    networks:
+      - "postgresSQL"
+  app:
+    container_name: springboot_app
+    image: springio/smartratelimiter
+    ports:
+      - "8080:8080"
+    environment:
+      # This overrides your properties file and points directly to the DB container on port 5432
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/SAM
+      SPRING_DATASOURCE_USERNAME: SAM
+      SPRING_DATASOURCE_PASSWORD: PASSWORD
+    networks:
+      - postgresSQL
+    depends_on:
+      - db # Tells Docker to start the database before the app
+networks:
+  postgresSQL :
+    driver: bridge
+volumes:
+  postgres_db :
