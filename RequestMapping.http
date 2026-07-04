@@ -1,0 +1,14 @@
+### GET request to example server
+GET http://localhost:8080/helloworld/
+
+### Register new User
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+    "emailId" : "ssarcar3@gmail.com",
+    "password" : "hate1234"
+}
+
+
+###
