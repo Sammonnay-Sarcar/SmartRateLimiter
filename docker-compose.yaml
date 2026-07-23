@@ -13,7 +13,8 @@ services:
       - "postgresSQL"
   app:
     container_name: springboot_app
-    image: springio/smartratelimiter
+    build: .
+    image: smart-rate-limiter:1.0
     ports:
       - "8080:8080"
     environment:
