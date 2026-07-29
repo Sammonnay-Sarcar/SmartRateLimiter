@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.security.Principal;
 
+import org.example.smartratelimiter.logging.RequestLogService;
 import org.example.smartratelimiter.ratelimit.RateLimiterService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class ProxyController {
     private final RateLimiterService rateLimiterService;
     private final WebClient webClient = WebClient.create();
+    private final RequestLogService requestLogService;
     @GetMapping("/proxy/**")
     public ResponseEntity<?> getMethodName(HttpServletRequest request, Principal principal) {
         String username = principal.getName();
@@ -26,11 +28,14 @@ public class ProxyController {
         }
         String uri = request.getRequestURI().replace("/proxy", "");
         String targetUri = "http://httpbin.org" + uri;
+        long startTime = System.nanoTime();
         String response = webClient.get()
                 .uri(targetUri)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+                long durationInMillis = (System.nanoTime() - startTime) / 1_000_000;
+                requestLogService.log(username, targetUri, 200, durationInMillis);
         return ResponseEntity.ok(response);
     }    
 }
